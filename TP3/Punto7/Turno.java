@@ -15,9 +15,8 @@ public class Turno {
         boolean exito=false;
         if(this.turno==turno){
             exito=true;
-            this.turno++;          
+            this.turno++;        
             this.turno=this.turno%3;
-            System.out.println(this.turno);
         }
         return exito;
     }

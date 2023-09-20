@@ -23,7 +23,7 @@ public class NewMain {
         int longitud=50000;
         int [] arreglo=new int[longitud];
         int i;
-        byte cantSumadores=1;
+        byte cantSumadores=3;
         Random num=new Random();
         Sumador[] sumadores=new Sumador[cantSumadores];
                 

@@ -20,13 +20,14 @@ public class NewMain {
         int i;
         Cliente[] clientes=new Cliente[cantClientes];
         
-        //Crear impresoras
+
         Impresora[] colImpresoras=new Impresora[2];
         for (i = 0; i < colImpresoras.length; i++) {
             colImpresoras[i] = new Impresora();
         }
         //Crear el gestor de impresoras con la colImpresoras
         GestorImpresora gi=new GestorImpresora(colImpresoras);
+
         //Crear clientes
         for (i = 0; i < cantClientes; i++) {
             clientes[i]=new Cliente(gi,"Cliente "+(i+1));

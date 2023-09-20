@@ -27,7 +27,7 @@ public class Control extends Thread{
                 Logger.getLogger(Control.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("ALTERNANDO LÍNEAS");
-            produccion.alternarLineas();
+            this.produccion.alternarLineas();
         }
     }
 }

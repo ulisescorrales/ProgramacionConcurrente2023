@@ -15,12 +15,14 @@ import java.util.logging.Logger;
 public class ControladorProduccion {
     private char lineaActiva='e';//e es electrico,m es mecanico
     private Semaphore mutex=new Semaphore(1);
+    //
     private Semaphore mecanico=new Semaphore(0);
     private Semaphore electrico=new Semaphore(1);
     
     public void alternarLineas(){
         try {
             mutex.acquire();
+            //Intercambiar linea activa
             if(lineaActiva=='e'){
                 lineaActiva='m';
                 electrico.acquire();

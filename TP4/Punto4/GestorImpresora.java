@@ -13,10 +13,10 @@ import java.util.logging.Logger;
  * @author ulisescorrales
  */
 public class GestorImpresora{
-    private Impresora[] colImpresoras;
-    private int cantImpresoras;
+    private final Impresora[] colImpresoras;
+    private final int cantImpresoras;
     private int cantUsados=0;
-    private Semaphore hayDisponible=new Semaphore(1);
+    private final Semaphore hayDisponible=new Semaphore(1);
 
     public GestorImpresora(Impresora[] colImpresoras) {
         this.colImpresoras = colImpresoras;
@@ -38,6 +38,7 @@ public class GestorImpresora{
             encontrado=colImpresoras[i].intentarUsar();
             i++;
         }
+        //Impresora que se está usando
         numDeImpresora=i-1;
         cantUsados++;
         //Mientras sigan habiendo impresoras disponibles, liberar el permiso

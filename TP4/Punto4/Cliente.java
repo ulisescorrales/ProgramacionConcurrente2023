@@ -23,8 +23,9 @@ public class Cliente extends Thread{
     public void run(){
         int impresoraAsignada;
         impresoraAsignada=gi.imprimir();
-        System.out.println(this.getName()+" está imprimiendo");
+        System.out.println(this.getName()+" está imprimiendo con impresora: "+impresoraAsignada);
         try {
+            //Imprimir
             Thread.sleep(2000);
         } catch (InterruptedException ex) {
             Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);

@@ -11,28 +11,30 @@ import java.util.logging.Logger;
  *
  * @author ulisescorrales
  */
-public class Imprimidor extends Thread{
+public class Imprimidor extends Thread {
+
     private String letra;
-    private Turno turno;
+    private Turno turno;//Objeto compartido
     private int turnoPropio;
 
-    public Imprimidor(String letra, Turno turno, String name,int turnoPropio) {
+    public Imprimidor(String letra, Turno turno, String name, int turnoPropio) {
         super(name);
         this.letra = letra;
         this.turno = turno;
-        this.turnoPropio=turnoPropio;
+        this.turnoPropio = turnoPropio;
     }
-    
-    public void run(){
-        while(true){
-            if(turno.getTurno(this.turnoPropio)){            
+
+    public void run() {
+        while (true) {
+            if (turno.getTurno(this.turnoPropio)) {
+
                 System.out.print(this.letra);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Imprimidor.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Imprimidor.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }        
+        }
     }
 }

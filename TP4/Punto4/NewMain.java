@@ -17,13 +17,14 @@ public class NewMain {
         // TODO code application logic here
         
         int cantClientes=8;
+        int cantImpresoras=4;
         int i;
         Cliente[] clientes=new Cliente[cantClientes];
         
 
-        Impresora[] colImpresoras=new Impresora[2];
-        for (i = 0; i < colImpresoras.length; i++) {
-            colImpresoras[i] = new Impresora();
+        Impresora[] colImpresoras=new Impresora[cantImpresoras];
+        for (i = 0; i < cantImpresoras; i++) {
+            colImpresoras[i] = new Impresora(i+1);
         }
         //Crear el gestor de impresoras con la colImpresoras
         GestorImpresora gi=new GestorImpresora(colImpresoras);

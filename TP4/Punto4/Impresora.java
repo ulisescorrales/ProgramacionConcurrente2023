@@ -13,19 +13,20 @@ import java.util.logging.Logger;
  * @author ulisescorrales
  */
 public class Impresora {    
-    Semaphore usar=new Semaphore(1);
+    private boolean estaOcupado=false;
+    private int numImpresora;
+
+    public Impresora(int numImpresora) {
+        this.numImpresora = numImpresora;
+    }
     
-    public boolean intentarUsar(){
-        return usar.tryAcquire();
+    public int getNumImpresora(){
+        return this.numImpresora;
+    }
+    public void usar(){
+        estaOcupado=true;
     }
     public void dejarUsar(){
-        usar.release();
-    }
-    public void esperar(){
-        try {
-            usar.acquire();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Impresora.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        estaOcupado=false;
     }
 }

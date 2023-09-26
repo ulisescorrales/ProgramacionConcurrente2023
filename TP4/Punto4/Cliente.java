@@ -21,9 +21,9 @@ public class Cliente extends Thread{
     
     
     public void run(){
-        int impresoraAsignada;
+        Impresora impresoraAsignada;
         impresoraAsignada=gi.imprimir();
-        System.out.println(this.getName()+" está imprimiendo con impresora: "+impresoraAsignada);
+        System.out.println(this.getName()+" está imprimiendo con impresora: "+impresoraAsignada.getNumImpresora());
         try {
             //Imprimir
             Thread.sleep(2000);

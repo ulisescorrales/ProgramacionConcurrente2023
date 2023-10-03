@@ -2,11 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
-package programacionconcurrente2023.TP4.Punto7;
-
-import programacionconcurrente2023.TP5.Punto1.Mozo;
-import programacionconcurrente2023.TP5.Punto1.Lugar;
-import programacionconcurrente2023.TP5.Punto1.Empleado;
+package programacionconcurrente2023.TP5.Punto1;
 
 /**
  *
@@ -21,14 +17,16 @@ public class NewMain {
         // TODO code application logic here
         int cantEmpleados=3;
         Lugar lugar=new Lugar();
-        Mozo mozo=new Mozo(lugar,"Mozo");
+        Mozo mozo1=new Mozo(lugar,"Mozo1");
+        Mozo mozo2=new Mozo(lugar,"Mozo2");
         Empleado[] empleados=new Empleado[3];
         
         for (int i = 0; i < cantEmpleados; i++) {
             empleados[i]=new Empleado(lugar,"Empleado "+(i+1));
             empleados[i].start();
         }
-        mozo.start();
+        mozo1.start();
+        mozo2.start();
     }
     
 }

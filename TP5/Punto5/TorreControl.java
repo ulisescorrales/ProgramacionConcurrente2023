@@ -15,8 +15,9 @@ import java.util.logging.Logger;
 public class TorreControl {
 
     private Semaphore usarPista = new Semaphore(1);
-    private Semaphore noHayAterrizar = new Semaphore(0);
-    private Semaphore noHayDespegar=new Semaphore(1);
+    private Semaphore puedeDespegar = new Semaphore(1);
+    private Semaphore puedeAterrizar=new Semaphore(1);
+    private Semaphore cantAterrizajes=new Semaphore(0);
     private int contAterrizajes = 0;
     private int esperandoAterrizar = 0;
     private int esperandoDespegar = 0;
@@ -26,7 +27,8 @@ public class TorreControl {
             esperandoAterrizar++;
             System.out.println(Thread.currentThread().getName()+" pide aterrizar");
             //Se bloquea si hubieron 10 aterrizajes y un avión quiere despegar
-            noHayDespegar.acquire();
+            //puedeAterrizar.acquire();
+            puedeDespegar.acquire();
             usarPista.acquire();
             System.out.println(Thread.currentThread().getName()+" está aterrizando");
         } catch (InterruptedException ex) {
@@ -38,10 +40,8 @@ public class TorreControl {
         try {
             //Antes de pedir la pista, espera a que los aviones aterricen
             esperandoDespegar++;
-            System.out.println(Thread.currentThread().getName()+" pide despegar");
-            if (esperandoAterrizar > 0 && contAterrizajes < 10) {
-                noHayAterrizar.acquire();
-            }
+            System.out.println(Thread.currentThread().getName()+" pide despegar");            
+            puedeDespegar.acquire();
             usarPista.acquire();
             System.out.println(Thread.currentThread().getName()+" está despegando");
         } catch (InterruptedException ex) {
@@ -54,18 +54,23 @@ public class TorreControl {
         usarPista.release();
         esperandoAterrizar--;
         contAterrizajes++;
-        if(contAterrizajes<10 || esperandoDespegar==0){
-            noHayDespegar.release();
-        }
-        //Si ya terminaron de aterrizar y había un avión esperando a despegar
-        if (esperandoAterrizar == 0 && esperandoDespegar > 0) {
-            noHayAterrizar.release();
+        //Si no hay aviones que quieran aterrizar, puede despegar un avión
+        if(esperandoAterrizar==0){
+            puedeDespegar.release();            
+        }else if(contAterrizajes>=10){
+            //Si se contaron 10 aterrizajes, se libera un permiso para despegar y se reinicia el contador
+            puedeDespegar.release();
+            contAterrizajes=0;
         }
     }  
 
     public void terminarDespegar() {
         System.out.println(Thread.currentThread().getName()+" termina de despegar");
-        esperandoDespegar--;
+        esperandoDespegar--;        
         usarPista.release();
+        //Si no hay aviones que quieran aterrizar, puede despegar un avión
+        if(esperandoAterrizar==0){
+            puedeDespegar.release();
+        }
     }
 }

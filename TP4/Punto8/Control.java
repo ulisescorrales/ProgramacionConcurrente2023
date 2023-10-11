@@ -4,6 +4,7 @@
  */
 package programacionconcurrente2023.TP4.Punto8;
 
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,13 +21,13 @@ public class Control extends Thread{
     }
     
     public void run(){
+        Random num=new Random();
         while(true){
             try {
-                Thread.sleep(10000);
+                Thread.sleep(num.nextInt(5000));
             } catch (InterruptedException ex) {
                 Logger.getLogger(Control.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            System.out.println("ALTERNANDO LÍNEAS");
+            }            
             this.produccion.alternarLineas();
         }
     }

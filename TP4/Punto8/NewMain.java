@@ -15,15 +15,22 @@ public class NewMain {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        int cantProdElect=5,cantProdMec=5;
-        ControladorProduccion contr=new ControladorProduccion();
+        int cantElect=7,cantMec=7,capacidad=2;
+        ControladorProduccion contr=new ControladorProduccion(capacidad);
         Control control=new Control(contr,"Control");
+        ProductoElectrico[] prodElectricos=new ProductoElectrico[cantElect];
+        ProductoMecanico[] prodMecanicos=new ProductoMecanico[cantMec];
         
         
-        for (int i = 0; i < cantProdElect; i++) {
-            String arg = args[i];
-            
+        for (int i = 0; i < cantElect; i++) {
+            prodElectricos[i]=new ProductoElectrico(contr,"Electrico "+(1+i));
+            prodElectricos[i].start();
         }
+        for (int i = 0; i < cantMec; i++) {
+            prodMecanicos[i]=new ProductoMecanico(contr,"Mecánico"+(1+i));
+            prodMecanicos[i].start();
+        }
+        control.start();
     }
     
 }

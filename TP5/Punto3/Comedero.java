@@ -23,6 +23,7 @@ public class Comedero {
     private int perrosComiendo=0;
     private int contadorGatos = 0;
     private char animalActivo = 'p';//g para gato    
+    private Semaphore mutex= new Semaphore(1,true);
     //Semáforo genérico
     private Semaphore comederos;
     //Semáforos binarios
@@ -32,25 +33,34 @@ public class Comedero {
     public void comerPerro() {
         try {
             //Entra un perro al comedero
+            mutex.acquire();
             perrosEsperando++;
+            mutex.release();
             //Si es el turno de los perros
             puedeComerPerro.acquire();            
             //Toma un plato
+            mutex.acquire();
+            //Se ocupan los platos, si se llenan los platos esperan aquí?
             comederos.acquire();
-            contComederos--;
             perrosEsperando--;
-            contadorPerros++;
             perrosComiendo++;
+            contadorPerros++;                        
             //Quedaría un solo perro esperando adentro como máximo
             if (contadorPerros < limitePerros || gatosEsperando == 0) {
                 //Pasa el siguiente perro
                 puedeComerPerro.release();
             }
+            mutex.release();
         } catch (InterruptedException ex) {
             Logger.getLogger(Comedero.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     public void dejarComerPerro() {
+        try {
+            mutex.acquire();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Comedero.class.getName()).log(Level.SEVERE, null, ex);
+        }
         comederos.release();
         perrosComiendo--;
         //Si el contador supera el límite, hay gatos esperando para comer y ya se desocuparon todos lso platos,
@@ -58,6 +68,7 @@ public class Comedero {
         if ((contadorPerros >= limitePerros) && (gatosEsperando != 0) && (perrosComiendo==0)) {
                 cambiarAnimal();                
         }
+        mutex.release();
     }
 
     public void cambiarAnimal() {

@@ -30,7 +30,8 @@ public class ControladorProduccion {
 
     public void alternarLineas() {
         try {
-            mutex.acquire(); 
+            mutex.acquire();
+            //Avisar que se quiere alternar las líneas
             cambiar=true;    
             mutex.release();
             System.out.println(Color.CYAN+"Se pide alternar línea");
@@ -61,7 +62,7 @@ public class ControladorProduccion {
             System.out.println(Color.GREEN+"Llega "+Thread.currentThread().getName());
             mutex.acquire();
             contProductos++;
-            //Si no hay capacidad, no se elimina un permiso para el siguiente prod. eléctrico            
+            //Si no hay capacidad o se quiere alternar líneas, no se elimina un permiso para el siguiente prod. eléctrico            
             if ((contProductos < capacidad) && !cambiar) {
                 electrico.release();
             }

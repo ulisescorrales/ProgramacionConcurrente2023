@@ -20,12 +20,13 @@ public class Perro extends Thread{
     }
     
     public void run(){
-        comedero.comerPerro();
+        Object plato;
         try {
+            plato=comedero.comerPerro();
             Thread.sleep(2000);
+            comedero.dejarComerPerro(plato);
         } catch (InterruptedException ex) {
-            Logger.getLogger(Perro.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Gato.class.getName()).log(Level.SEVERE, null, ex);
         }
-        comedero.dejarComer();
     }
 }

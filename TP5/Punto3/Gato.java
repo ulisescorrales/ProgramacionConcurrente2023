@@ -20,12 +20,13 @@ public class Gato extends Thread{
     }
     
     public void run(){
-        comedero.comerGato();
+        Object plato;
         try {
+            plato=comedero.comerGato();
             Thread.sleep(2000);
+            comedero.dejarComerGato(plato);
         } catch (InterruptedException ex) {
             Logger.getLogger(Gato.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        comedero.dejarComer();
+        }        
     }
 }

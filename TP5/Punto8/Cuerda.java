@@ -25,7 +25,7 @@ public class Cuerda {
     
     
     public void subirA(){
-        try {                 
+        try {                
             mutex1.acquire();
             System.out.println(Color.YELLOW+Thread.currentThread().getName()+"quiere entrar");
             cont++;

@@ -31,6 +31,7 @@ public class Comedero {
     private Semaphore puedeComerGato;
     //Sem bianario
     private Semaphore mutex = new Semaphore(1);
+    private char turnoActivo;
 
     public Comedero(int cantPlatos, int limite) {
         platosLibres = new Stack();
@@ -58,7 +59,13 @@ public class Comedero {
         }
         mutex.release();
         //Si es el turno de los perros, pide el permiso
-        puedeComerPerro.acquire();
+        if(perrosEsperando==1){
+            semLimite.acquire(this.limite);
+            //bloquear a los gatos
+            puedeComerGato.acquire(puedeComerGato.availablePermits());            
+        }else{
+            puedeComerPerro.acquire();
+        }        
         mutex.acquire();
         System.out.println(Color.CYAN+Thread.currentThread().getName()+" entra");
         perrosEsperando--;

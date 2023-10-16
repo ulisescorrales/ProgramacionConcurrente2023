@@ -17,6 +17,10 @@ public class Libro {
     private Semaphore leer;
     private Semaphore escribir;
     private int cantLectores;
+    private Semaphore mutexE;
+    private int cantEscritores=0;
+    private Semaphore mutex2=new Semaphore(1);
+    private Semaphore escritores=new Semaphore(1);
 
     public Libro(int cantLectores) {
         this.cantLectores=cantLectores;
@@ -24,22 +28,50 @@ public class Libro {
     }        
     
     public void empezarLeer(){        
-        try {
+        try {            
             leer.acquire();
         } catch (InterruptedException ex) {
             Logger.getLogger(Libro.class.getName()).log(Level.SEVERE, null, ex);
         }        
     }
+    public int getDato(){
+        return this.dato;
+    }
     public void terminarLeer(){
-        
+        leer.release();
     }
     
-    public void empezarEscribir(int dato2){
+    public void empezarEscribir(){
         try {
-            escribir.acquire();
-            leer.acquire(cantLectores);
+            mutex2.acquire();
+            cantEscritores++;
+            if(cantEscritores==1){
+                leer.acquire(cantLectores);
+            }
+            mutex2.release();
+            escritores.acquire();
         } catch (InterruptedException ex) {
             Logger.getLogger(Libro.class.getName()).log(Level.SEVERE, null, ex);
         }        
+    }
+    public void escribir(int dato){
+        try {
+            
+            mutexE.acquire();
+            this.dato=dato;
+            mutexE.release();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Libro.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public void dejarEscribir(){
+        //Ya terminó de escribir
+        escritores.release();
+        mutex2.acquire();
+        cantEscritores--;
+        if(cantEscritores==0){
+            leer.release(cantLectores);
+        }
+        mutex2.release();
     }
 }

@@ -14,11 +14,11 @@ public class NewMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        int cantGatos=5,cantPerros=5;
+        int cantGatos=7,cantPerros=7;
         Perro[] perros=new Perro[cantPerros];
         Gato[] gatos=new Gato[cantGatos];
         
-        Comedero comedero=new Comedero(5,2);
+        Comedero comedero=new Comedero(5);
         
         for (int i = 0; i < cantPerros; i++) {
             perros[i]=new Perro(comedero,"Perro "+(i+1));

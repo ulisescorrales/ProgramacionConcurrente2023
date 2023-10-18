@@ -14,22 +14,20 @@ public class NewMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        int cantGatos=7,cantPerros=7;
-        Perro[] perros=new Perro[cantPerros];
-        Gato[] gatos=new Gato[cantGatos];
+        int cantAnimales=7;
+        Perro[] perros=new Perro[cantAnimales];
+        Gato[] gatos=new Gato[cantAnimales];
         
-        Comedero comedero=new Comedero(5);
+        Comedero comedero=new Comedero(5,6);
         
-        for (int i = 0; i < cantPerros; i++) {
+//Se prueba con inicializar y comenzar los hilos de ambas especies intercaladamente para verificar el bloqueo entre ambas especies
+        for (int i = 0; i < cantAnimales; i++) {
             perros[i]=new Perro(comedero,"Perro "+(i+1));
             perros[i].start();
             gatos[i]=new Gato(comedero,"Gato"+(i+1));
             gatos[i].start();
         }
-        /*for (int i = 0; i < cantGatos; i++) {
-            gatos[i]=new Gato(comedero,"Gato"+(i+1));
-            gatos[i].start();
-        }*/
+       
     }
     
 }

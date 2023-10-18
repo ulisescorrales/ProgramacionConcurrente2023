@@ -16,6 +16,7 @@ import programacionconcurrente2023.Color;
  */
 public class Comedero {
 
+//Estructura de pila para representar los platos libres
     private Stack platos;
     private int cantPlatos;
     private Semaphore mutex = new Semaphore(1);
@@ -42,6 +43,7 @@ this.limite=limite;
     }
 
     public Object comerGato() throws InterruptedException {
+//Método para comer un plato, el objecto retornado representaría el plato asignado que se saca de los platos libres
         Object platoElegido;
 
         mutex.acquire();
@@ -79,6 +81,7 @@ this.limite=limite;
     }
 
     public Object comerPerro() throws InterruptedException {
+//Método para comer un plato, el objecto retornado representaría el plato asignado que se saca de los platos libres
         Object platoElegido;
 
         mutex.acquire();
@@ -114,6 +117,7 @@ this.limite=limite;
     }
 
     public void salirGato(Object plato) throws InterruptedException {
+//Método que devuelve el plato que llega por parámetro a la pila de platos libres
         mutex.acquire();
         animalesComiendo--;
         System.out.println(Color.YELLOW + Thread.currentThread().getName() + " sale");

@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author ulisescorrales
+
  */
 public class Gato extends Thread{
     Comedero comedero;
@@ -23,6 +23,7 @@ public class Gato extends Thread{
         Object plato;
         try {
             plato=comedero.comerGato();
+            //Simular un tiempo mientras come
             Thread.sleep(2000);
             comedero.salirGato(plato);
         } catch (InterruptedException ex) {

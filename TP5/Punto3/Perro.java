@@ -23,6 +23,7 @@ public class Perro extends Thread{
         Object plato;
         try {
             plato=comedero.comerPerro();
+            //Simular un tiempo mientras come            
             Thread.sleep(2000);
             comedero.salirPerro(plato);
         } catch (InterruptedException ex) {

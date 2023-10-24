@@ -21,7 +21,7 @@ public class AvionDespegar extends Thread{
     public void run(){
         torre.permitirDespegar();
         try {
-            Thread.sleep(2000);
+            Thread.sleep(500);
         } catch (InterruptedException ex) {
             Logger.getLogger(AvionDespegar.class.getName()).log(Level.SEVERE, null, ex);
         }

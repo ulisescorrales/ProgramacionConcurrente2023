@@ -22,7 +22,7 @@ public class AvionAterrizar extends Thread{
     public void run(){
         torre.permitirAterrizar();
         try {
-            Thread.sleep(2000);
+            Thread.sleep(500);
         } catch (InterruptedException ex) {
             Logger.getLogger(AvionAterrizar.class.getName()).log(Level.SEVERE, null, ex);
         }

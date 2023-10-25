@@ -13,22 +13,19 @@ public class NewMain {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        int cantDespegar=20;
-        int cantAterrizar=11;
+    public static void main(String[] args) {                
+        int cantAviones=12;
         
         TorreControl torre=new TorreControl();
-        AvionAterrizar[] aterrizar=new AvionAterrizar[cantAterrizar];
-        AvionDespegar[] despegar=new AvionDespegar[cantDespegar];
+        AvionAterrizar[] aterrizar=new AvionAterrizar[cantAviones];
+        AvionDespegar[] despegar=new AvionDespegar[cantAviones];
         
-        for (int i = 0; i < cantAterrizar; i++) {            
+        for (int i = 0; i < cantAviones; i++) {            
             aterrizar[i]=new AvionAterrizar(torre,"AviónA "+(i+1));
             aterrizar[i].start();            
-        }
-        for (int i = 0; i < cantDespegar; i++) {
             despegar[i]=new AvionDespegar(torre,"AviónD "+(i+1));
             despegar[i].start();
-        }
+        }        
     }
     
 }

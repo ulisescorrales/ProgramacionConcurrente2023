@@ -14,7 +14,7 @@ public class NewMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {                
-        int cantAviones=8;
+        int cantAviones=6;
         
         TorreControl torre=new TorreControl();
         AvionAterrizar[] aterrizar=new AvionAterrizar[cantAviones];

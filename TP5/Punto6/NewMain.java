@@ -14,17 +14,17 @@ public class NewMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {                
-        int cantAviones=12;
+        int cantAviones=8;
         
         TorreControl torre=new TorreControl();
         AvionAterrizar[] aterrizar=new AvionAterrizar[cantAviones];
         AvionDespegar[] despegar=new AvionDespegar[cantAviones];
         
         for (int i = 0; i < cantAviones; i++) {            
-            aterrizar[i]=new AvionAterrizar(torre,"AviónA "+(i+1));
-            aterrizar[i].start();            
             despegar[i]=new AvionDespegar(torre,"AviónD "+(i+1));
             despegar[i].start();
+            aterrizar[i]=new AvionAterrizar(torre,"AviónA "+(i+1));
+            aterrizar[i].start();                        
         }        
     }
     

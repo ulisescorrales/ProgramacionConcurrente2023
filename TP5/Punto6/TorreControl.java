@@ -15,33 +15,33 @@ import programacionconcurrente2023.Color;
  */
 public class TorreControl {
 
-    private Semaphore puedeDespegar = new Semaphore(1);
     private Semaphore puedeAterrizar = new Semaphore(1);    
-    private int contAterrizajes = 0;
-    private int esperandoAterrizando = 0;
+    private int esperandoAterrizar = 0;
     private int limite = 3;
-    private Semaphore limiteAterrizajes = new Semaphore(limite);
-    private int esperandoYDespegando = 0;
+    private Semaphore puedeDespegar = new Semaphore(limite);
+    //private Semaphore limiteAterrizajes = new Semaphore(limite);
+    private int esperandoDespegar = 0;
     private Semaphore mutex = new Semaphore(1);
-    private int esperandoYArriba=0;
-    private boolean enUso = false;
+    private int esperandoYArriba = 0;    
+    private Semaphore usarPista = new Semaphore(1,true);
 
     public void permitirAterrizar() {
         try {
             mutex.acquire();
-            esperandoAterrizando++;
+            esperandoAterrizar++;
             esperandoYArriba++;
             System.out.println(Thread.currentThread().getName() + " pide aterrizar");
-            if(esperandoYArriba==1){
-                puedeDespegar.acquire();
+            if (esperandoYArriba == 1) {
+                System.out.println("SE BLOQUEA DESPEGAR");
+                puedeDespegar.acquire(this.limite);
             }
             mutex.release();
 
             puedeAterrizar.acquire();
+            usarPista.acquire();
             mutex.acquire();
             System.out.println(Color.CYAN + Thread.currentThread().getName() + " está aterrizando");            
-            enUso = true;
-            esperandoAterrizando--;
+            esperandoAterrizar--;
             mutex.release();
         } catch (InterruptedException ex) {
             Logger.getLogger(TorreControl.class.getName()).log(Level.SEVERE, null, ex);
@@ -52,29 +52,23 @@ public class TorreControl {
         try {
             //Antes de pedir la pista, espera a que los aviones aterricen
             mutex.acquire();
-            esperandoYDespegando++;
+            esperandoDespegar++;
             esperandoYArriba++;
             System.out.println(Thread.currentThread().getName() + " pide despegar");
             //Si hay aviones esperando a aterrizar, cederles lugar
-            if(esperandoYArriba==1){
+            if (esperandoYArriba == 1) {
+                System.out.println("SE BLOQUEA ATERRIZAR");
                 puedeAterrizar.acquire();
-                mutex.release();
-                puedeDespegar.acquire();
-            }else if(esperandoAterrizando>0){
-                mutex.release();
-                System.out.println("ESPERANDO EL LÍMITE");
-                limiteAterrizajes.acquire(this.limite);
-                puedeAterrizar.acquire();
-            }else{
-                mutex.release();
-                puedeDespegar.acquire();
-            }            
-            
-            //puedeDespegar.acquire();
+            }
+            mutex.release();
+
+            puedeDespegar.acquire(this.limite);
+            System.out.println("Puede despegar permisos:"+puedeDespegar.availablePermits());
+            System.out.println(Thread.currentThread().getName() + " pide la pista");
+            usarPista.acquire();
             mutex.acquire();
-            System.out.println(Color.GREEN + Thread.currentThread().getName() + " está despegando");
-            enUso = true;
-            esperandoYDespegando--;
+            System.out.println(Color.GREEN + Thread.currentThread().getName() + " está despegando");            
+            esperandoDespegar--;
             mutex.release();
         } catch (InterruptedException ex) {
             Logger.getLogger(TorreControl.class.getName()).log(Level.SEVERE, null, ex);
@@ -84,20 +78,25 @@ public class TorreControl {
     public void terminarAterrizar() {
         try {
             mutex.acquire();
-            System.out.println(Color.RED + Thread.currentThread().getName() + " termina de aterrizar");
-            contAterrizajes++;            
-            esperandoYArriba--;
-            enUso = false;
-            limiteAterrizajes.release();
-            if (esperandoAterrizando > 0) {
+            System.out.println(Color.RED + Thread.currentThread().getName() + " termina de aterrizar");            
+            esperandoYArriba--;                        
+            if (esperandoAterrizar > 0) {
+                //Libera un límite y deja que aterize el otro
+                //Como puedeDespegar está primero, si se llega al límite el avión a Despegar lo toma primero                 
+                if(esperandoAterrizar>3){
+                    puedeDespegar.release();
+                }                
                 puedeAterrizar.release();
-            } else if (esperandoYDespegando > 0) {
-                puedeDespegar.release();
+            } else if (esperandoDespegar > 0) {                                
+                puedeDespegar.release(this.limite);
+                
             } else {
                 System.out.println("LIBERADO AMBOS");
-                puedeDespegar.release();
+                puedeDespegar.release(this.limite);
                 puedeAterrizar.release();
             }
+
+            usarPista.release();
             mutex.release();
         } catch (InterruptedException ex) {
             Logger.getLogger(TorreControl.class.getName()).log(Level.SEVERE, null, ex);
@@ -106,20 +105,18 @@ public class TorreControl {
 
     public void terminarDespegar() {
         try {
-            mutex.acquire();
-            enUso = false;
-            esperandoYArriba--;            
-            System.out.println(Color.RED + Thread.currentThread().getName() + " termina de aterrizar");
-            if (esperandoAterrizando > 0) {
+            mutex.acquire();            
+            esperandoYArriba--;
+            System.out.println(Color.RED + Thread.currentThread().getName() + " termina de despegar");            
+            if (esperandoAterrizar > 0) {
                 puedeAterrizar.release();
-            } else if (esperandoYDespegando > 0) {
-                limiteAterrizajes.release(this.limite);
-                puedeDespegar.release();
-            } else {
-                System.out.println("LIBERADO AMBOS");
-                puedeDespegar.release();
+            } else if (esperandoDespegar > 0) {                
+                puedeDespegar.release(this.limite);
+            } else {                
+                puedeDespegar.release(this.limite);
                 puedeAterrizar.release();
             }
+            usarPista.release();
             mutex.release();
         } catch (InterruptedException ex) {
             Logger.getLogger(TorreControl.class.getName()).log(Level.SEVERE, null, ex);

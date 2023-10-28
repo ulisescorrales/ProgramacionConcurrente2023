@@ -5,6 +5,8 @@
 package programacionconcurrente2023.TP5.Punto6;
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import programacionconcurrente2023.Color;
@@ -18,7 +20,7 @@ public class TorreControl {
     private int esperandoAterrizar = 0;
     private int limite = 3;
     private Semaphore puedeAterrizar = new Semaphore(this.limite);
-    private Semaphore puedeDespegar = new Semaphore(limite);
+    private Semaphore puedeDespegar = new Semaphore(this.limite);
     //private Semaphore limiteAterrizajes = new Semaphore(limite);
     private int esperandoDespegar = 0;
     private Semaphore mutex = new Semaphore(1);
@@ -26,7 +28,9 @@ public class TorreControl {
     private Semaphore usarPista = new Semaphore(1, true);
     private int contAterrizajes=0;
 
-    public void permitirAterrizar() {
+    private Lock despegar=new ReentrantLock();
+
+    public void permitirAterrizar() {        
         try {
             mutex.acquire();
             esperandoAterrizar++;
@@ -115,8 +119,7 @@ public class TorreControl {
             esperandoYArriba--;
             System.out.println(Color.RED + Thread.currentThread().getName() + " termina de despegar");
             if (esperandoAterrizar > 0) {
-                System.out.println("Permisos aterrizar:" + (puedeAterrizar.availablePermits() + this.limite));
-                if (esperandoAterrizar > 2) {
+                if (esperandoAterrizar >= this.limite) {
                     puedeAterrizar.release(this.limite);
                 } else {
                     puedeAterrizar.release(esperandoAterrizar);

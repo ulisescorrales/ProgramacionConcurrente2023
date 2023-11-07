@@ -4,7 +4,8 @@
  */
 package programacionconcurrente2023.TP6.Punto2;
 
-import java.util.concurrent.Semaphore;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import programacionconcurrente2023.Color;
@@ -14,31 +15,28 @@ import programacionconcurrente2023.Color;
  * @author ulisescorrales
  */
 public class Sala {
-    private int cantMesas=5;
-    private Semaphore usarMesa=new Semaphore(this.cantMesas,true);
-    private Semaphore mutex=new Semaphore(1);
+    private int cantMesas=10;
+    private int mesasOcupadas=0;
+    private Queue cola=new LinkedList();
     
-    public void entrar(){
-        try {
-            mutex.acquire();
-            System.out.println(Thread.currentThread().getName()+" pide entrar");
-            mutex.release();
-            usarMesa.acquire();
-            mutex.acquire();
-            System.out.println(Color.CYAN+Thread.currentThread().getName()+" entra");            
-            mutex.release();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Sala.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public synchronized void entrar(Estudiante est){       
+        cola.add(est);
+        while(mesasOcupadas>=cantMesas||cola.peek()!=est ){
+            try {
+                //Si todas las mesas están ocupadas
+                System.out.println(Thread.currentThread().getName()+" espera");
+                this.wait();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Sala.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }        
+        cola.remove();
+        mesasOcupadas++;
+        System.out.println(Color.CYAN+Thread.currentThread().getName()+" entra");
     }
-    public void salir(){
-        try {
-            mutex.acquire();
-            System.out.println(Color.YELLOW+Thread.currentThread().getName()+" deja de usar la mesa");
-            mutex.release();
-            usarMesa.release();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Sala.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public synchronized void salir(){
+        mesasOcupadas--;
+        System.out.println(Color.YELLOW+Thread.currentThread().getName()+" desocupa una mesa");
+        this.notifyAll();
     }
 }

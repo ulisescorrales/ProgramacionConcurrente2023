@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package programacionconcurrente2023.TP6.Punto2;
+package programacionconcurrente2023.TP8.Punto2;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,21 +11,20 @@ import java.util.logging.Logger;
  *
  * @author ulisescorrales
  */
-public class Estudiante extends Thread{
-    private Sala sala;
+public class Visitante extends Thread{
+    Observatorio observatorio;
 
-    public Estudiante(Sala sala, String name) {
+    public Visitante(Observatorio observatorio, String name) {
         super(name);
-        this.sala = sala;
+        this.observatorio = observatorio;
     }
-    
     public void run(){
-        sala.entrar(this);
         try {
-            Thread.sleep(1000);
+            observatorio.entrarVisitante();
+            Thread.sleep(500);
+            observatorio.salirVisitante();
         } catch (InterruptedException ex) {
-            Logger.getLogger(Estudiante.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Visitante.class.getName()).log(Level.SEVERE, null, ex);
         }
-        sala.salir();
     }
 }

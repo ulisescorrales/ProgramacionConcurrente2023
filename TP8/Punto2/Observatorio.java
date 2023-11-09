@@ -29,9 +29,13 @@ public class Observatorio {
     private int esperandoObservador = 0;
     private Condition observador = lock.newCondition();
 
+    private Condition mantenimiento = lock.newCondition();
+    private int esperandoMantenimiento = 0;
+    private int mantenimientoAdentro = 0;
+
     public void entrarVisitante() {
         lock.lock();
-        while (cantAdentro == limite || this.observando || esperandoObservador > 0 || cantMantenimiento > 0) {
+        while (cantAdentro == limite || this.observando  || cantMantenimiento > 0||mantenimientoAdentro>0) {
             try {
                 limiteC.await();
             } catch (InterruptedException ex) {
@@ -45,7 +49,7 @@ public class Observatorio {
 
     public void entrarDiscapacitado() {
         lock.lock();
-        while (cantAdentro >= capacidad2 || observando || esperandoObservador > 0 || cantMantenimiento > 0) {
+        while (cantAdentro >= capacidad2 || observando ||  cantMantenimiento > 0||mantenimientoAdentro>0) {
             try {
                 limiteC.await();
             } catch (InterruptedException ex) {
@@ -59,10 +63,15 @@ public class Observatorio {
         lock.unlock();
     }
 
-    public void salir() {
+
+    public void salirVisitante() {
         lock.lock();
         cantAdentro--;
-        if (esperandoObservador > 0) {
+        if (esperandoMantenimiento > 0) {
+            if (cantAdentro == 0) {
+                mantenimiento.signalAll();
+            }
+        } else if (esperandoObservador > 0) {
             observador.signal();
         } else {
             limiteC.signal();
@@ -72,14 +81,23 @@ public class Observatorio {
     }
 
     public void salirDiscapacitado() {
+        boolean cambiado = false;
         lock.lock();
         cantAdentro--;
         cantSillaRuedas--;
-        if (esperandoObservador > 0) {
-            observador.signal();
-        } else if (cantSillaRuedas == 0) {
+        if (cantSillaRuedas == 0) {
             System.out.println("CAMBIAR LÍMITE");
             limite = capacidad1;
+            cambiado = true;
+        }
+        if (esperandoMantenimiento > 0 || esperandoObservador > 0) {
+            //Dejar de enviarle señales a otros visitantes
+            if (cantAdentro == 0 && esperandoObservador > 0) {
+                observador.signal();
+            } else if (cantAdentro == 0 && esperandoMantenimiento > 0) {
+                mantenimiento.signalAll();
+            }
+        } else if (cambiado) {
             limiteC.signalAll();
         } else {
             limiteC.signal();
@@ -109,7 +127,10 @@ public class Observatorio {
         lock.lock();
         System.out.println(Color.RED + Thread.currentThread().getName() + " sale");
         observando = false;
-        if (esperandoObservador > 0) {
+        //Cuando sale el contador siempre es cero por lo que no es necesario controlarlo
+        if (esperandoMantenimiento > 0) {
+            mantenimiento.signalAll();
+        } else if (esperandoObservador > 0) {
             observador.signal();
         } else {
             limiteC.signalAll();
@@ -117,4 +138,34 @@ public class Observatorio {
         lock.unlock();
     }
 
+    public void entrarMantenimiento() {
+        lock.lock();
+        esperandoMantenimiento++;
+        System.out.println(Color.CYAN+" PIDE ENTRAR");
+        while (cantAdentro > 0 || observando) {
+            try {
+                this.mantenimiento.await();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Observatorio.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        esperandoMantenimiento--;
+        mantenimientoAdentro++;
+        System.out.println(Color.PURPLE + Thread.currentThread().getName() + " entra");
+        lock.unlock();
+    }
+
+    public void salirMantenimiento() {
+        lock.lock();
+        mantenimientoAdentro--;
+        System.out.println(Thread.currentThread().getName()+" sale");
+        if (mantenimientoAdentro == 0) {
+            if (esperandoObservador > 0) {
+                observador.signal();
+            } else {
+                limiteC.signalAll();
+            }
+        }
+        lock.unlock();
+    }
 }

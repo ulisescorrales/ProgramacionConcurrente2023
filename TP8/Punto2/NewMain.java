@@ -20,11 +20,17 @@ public class NewMain {
     public static void main(String[] args) {
         try {
             int cantVisitantes=100;
+            int cantMantenimiento=5;
             Visitante[] visitantes= new Visitante[cantVisitantes];
             Observatorio observatorio=new Observatorio();
             Observador observador=new Observador(observatorio,"Observador");
             int cantDiscapacitados=10;
             observador.start();
+            Mantenimiento[] mantenimiento=new Mantenimiento[cantMantenimiento];
+            for (int i = 0; i < cantMantenimiento; i++) {
+                mantenimiento[i]=new Mantenimiento(observatorio,"Mantenimiento "+(i+1));
+                mantenimiento[i].start();
+            }
             Discapacitado[] discapacitados=new Discapacitado[cantDiscapacitados];
             for (int i = 0; i < cantDiscapacitados; i++) {
                 discapacitados[i]=new Discapacitado(observatorio,"Discapacitado "+(i+1));

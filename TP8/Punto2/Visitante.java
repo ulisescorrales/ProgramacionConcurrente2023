@@ -22,7 +22,7 @@ public class Visitante extends Thread{
         try {
             observatorio.entrarVisitante();
             Thread.sleep(500);
-            observatorio.salir();
+            observatorio.salirVisitante();
         } catch (InterruptedException ex) {
             Logger.getLogger(Visitante.class.getName()).log(Level.SEVERE, null, ex);
         }

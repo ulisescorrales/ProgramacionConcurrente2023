@@ -20,9 +20,9 @@ public class Observador extends Thread{
     }
     public void run(){
         try {
-            this.observatorio.entrarObservador();
+          //  this.observatorio.entrarObservador();
             Thread.sleep(500);
-            this.observatorio.salirObservador();
+           // this.observatorio.salirObservador();
         } catch (InterruptedException ex) {
             Logger.getLogger(Observador.class.getName()).log(Level.SEVERE, null, ex);
         }

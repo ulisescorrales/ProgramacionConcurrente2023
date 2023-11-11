@@ -63,18 +63,19 @@ public class Observatorio {
                 observadores.acquire();
             }         
             mutex.release();
-            //Verificar si existe 29 espacios libres totales            
+                        
             puedeEntrarD.acquire();
-            System.out.println(Color.RED+Thread.currentThread().getName()+" intenta entrar");
-            mutex.acquire();                        
+            capacidad.acquire();
+            mutex.acquire();                           
             if (cantDisc == 0) {     
+                mutex.release();
                 System.out.println("TOMAR 20 PERMISOS");
-                capacidad.acquire(21);
-            }else{                
+                capacidad.acquire(20);
+            }else{          
+                mutex.release();
                 capacidad.acquire();                  
             }
-            System.out.println("ENTRA JUBILADO");
-            System.out.println("Capacidad"+capacidad.availablePermits());            
+            mutex.acquire();
             esperandoDisc--;            
             cantDisc++;
             System.out.println(Color.GREEN + Thread.currentThread().getName() + " entra, adentro: " + (this.cantDisc + this.cantVisitantes));            

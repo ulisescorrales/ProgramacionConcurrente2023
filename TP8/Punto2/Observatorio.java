@@ -57,7 +57,7 @@ public class Observatorio {
             }
         }
         cantSillaRuedas++;
-        limite = capacidad2;
+        limite = capacidad2;//Cómo se modelaría este comportamiento con semáforos(siempre asignar)
         cantAdentro++;
         System.out.println(Color.GREEN + Thread.currentThread().getName() + " entra, cantAdentro:" + this.cantAdentro);
         lock.unlock();

@@ -24,7 +24,7 @@ public class Gato extends Thread{
         try {
             plato=comedero.comerGato();
             //Simular un tiempo mientras come
-            Thread.sleep(2000);
+            Thread.sleep(500);
             comedero.salirGato(plato);
         } catch (InterruptedException ex) {
             Logger.getLogger(Gato.class.getName()).log(Level.SEVERE, null, ex);

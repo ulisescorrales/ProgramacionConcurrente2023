@@ -10,7 +10,7 @@ import programacionconcurrente2023.Color;
 
 /**
  *
- 
+ *
  */
 public class Comedero {
 
@@ -20,6 +20,7 @@ public class Comedero {
     private Semaphore mutex = new Semaphore(1);
     private Semaphore gato;
     private Semaphore perro;
+    private Semaphore plato;
     private int gatosEsperando = 0;
     private int perrosEsperando = 0;
     private int animalesComiendo = 0;
@@ -28,11 +29,14 @@ public class Comedero {
     private int contPerros = 0;
     //Limite de xx veces seguidaS que puede comer un animal hasta que de deba cambiar el permiso hacia la otra especie en caso de que pida comer
     private int limite;
+    boolean liberadoGato;
+    boolean liberadoPerro;
 
     public Comedero(int cantPlatos, int limite) {
         this.cantPlatos = cantPlatos;
-        gato = new Semaphore(cantPlatos);
-        perro = new Semaphore(cantPlatos);
+        gato = new Semaphore(limite);
+        perro = new Semaphore(limite);
+        plato = new Semaphore(cantPlatos);
         platos = new Stack();
         for (int i = 0; i < cantPlatos; i++) {
             platos.push(new Object());
@@ -48,29 +52,46 @@ public class Comedero {
         System.out.println(Thread.currentThread().getName() + " intenta entrar");
         gatosEsperando++;
         //El primer animal que llega cuando nadie esta comiendo es quien bloquea a la otra especie
-        if (gatosEsperando == 1 && (perrosEsperando == 0 || animalesComiendo == 0)) {
+        if (gatosEsperando == 1 && (perrosEsperando + animalesComiendo == 0)) {
             //Bloquear a todos los perros
             System.out.println(Color.RED + "Perros se bloquean");
-            perro.acquire(cantPlatos);
+            if (contPerros >= limite) {
+                //Aqui solo tendría un permiso
+                System.out.println("Se bloquea un solo permiso");
+                System.out.println(perro.availablePermits());
+                perro.acquire();
+            } else {                
+                System.out.println("Se bloquean "+(limite - contPerros)+" permisos");
+                System.out.println(perro.availablePermits());
+                perro.acquire(limite - contPerros);
+            }
             contPerros = 0;
+            contGatos = 0;
         }
         mutex.release();
 
         //Consumir
         gato.acquire();
-
+        plato.acquire();
         mutex.acquire();
         System.out.println(Color.CYAN + Thread.currentThread().getName() + " entra");
-        //gatosComiendo++;   
+        gatosEsperando--;
         animalesComiendo++;
         contGatos++;
+        contPerros = 0;
         System.out.println("ContGatos=" + contGatos);
-        if (contGatos >= limite && perrosEsperando > 0) {
+        //Se verifica de a un 
+        liberadoGato=false;
+        if (contGatos >= limite && perrosEsperando == 0) {
             //cederle lugar a los perros si hay perros esperando después de xx gatos
-            System.out.println("Cederle lugar a los GATOS");
-            gato.acquire(gato.availablePermits());
+            System.out.println("Pueden seguir entrando gatos");
+            gato.release();
+            liberadoGato=true;
+        } else if (contPerros >= limite && liberadoGato) {
+            System.out.println("Tomar permiso remanente de PERRO: "+perro.availablePermits());
+            perro.acquire();            
         }
-        gatosEsperando--;
+        contPerros = 0;
         platoElegido = platos.peek();
         platos.pop();
 
@@ -86,15 +107,25 @@ public class Comedero {
 
         System.out.println(Thread.currentThread().getName() + " intenta entrar");
         perrosEsperando++;
-        if (perrosEsperando == 1 && (animalesComiendo == 0 || gatosEsperando == 0)) {
+        if (perrosEsperando == 1 && (animalesComiendo + gatosEsperando) == 0) {
             System.out.println(Color.RED + "Gatos se bloquean");
-            gato.acquire(cantPlatos);
+            if (contGatos >= limite) {
+                System.out.println("Se bloquea un solo permiso");
+                System.out.println(gato.availablePermits());
+                gato.acquire();
+            } else {
+                System.out.println("Se bloquean" +(limite - contGatos)+" permisos");
+                System.out.println(perro.availablePermits());
+                gato.acquire(limite - contGatos);
+            }
             contGatos = 0;
+            contPerros = 0;
         }
         mutex.release();
 
         //Consumir
         perro.acquire();
+        plato.acquire();
         mutex.acquire();
         System.out.println(Color.CYAN + Thread.currentThread().getName() + " entra");
         // perrosComiendo++; 
@@ -102,14 +133,19 @@ public class Comedero {
         animalesComiendo++;
         platoElegido = platos.peek();
         platos.pop();
-
         contPerros++;
+        liberadoPerro=false;
         System.out.println("ContPerros=" + contPerros);
-        if (contPerros >= limite && gatosEsperando > 0) {
+        if (contPerros >= limite && gatosEsperando == 0) {
             //cederle lugar a los gatos si hay gatos esperando  despues de xx  perros
-            System.out.println("Cederle lugar a los perros");
-            perro.acquire(perro.availablePermits());
+            System.out.println("Pueden seguir entrando perros");
+            perro.release();
+            liberadoPerro=true;
+        } else if (contGatos >= limite && liberadoPerro) {
+            System.out.println("Tomar permiso remanente de GATO: "+gato.availablePermits());
+            gato.acquire();            
         }
+        contGatos = 0;
         mutex.release();
         return platoElegido;
     }
@@ -121,16 +157,26 @@ public class Comedero {
         System.out.println(Color.YELLOW + Thread.currentThread().getName() + " sale");
         platos.push(plato);
         //Si xx cantidad de gatos ya han comido y hay perros esperando, no liberar un permiso para los otros gatos
-        if (!(contGatos >= limite && perrosEsperando > 0)) {
-            gato.release();
-        }
-        //Desbloquear los permisos para los perros si no hay nadie comiendo
-        if (animalesComiendo == 0) {
-            perro.release(cantPlatos);
-            if (perrosEsperando > 0) {
-                contPerros = 0;
+        if (animalesComiendo == 0 && (gatosEsperando + perrosEsperando) == 0) {
+            perro.release(this.limite);
+            //Gato tendría todos sus permisos disponibles
+        } else if (contGatos < limite) {
+            if (gatosEsperando == 0) {
+                if (perrosEsperando > 0 && animalesComiendo == 0) {
+                    //switch a perros
+                    gato.acquire(limite - contGatos);
+                    perro.release(limite);                    
+                }
+                //si no hay gatos esperando, que sigan consumiendo sus permisos
             }
+        } else {
+            if (perrosEsperando > 0 && animalesComiendo == 0) {
+                //switch perros
+                perro.release(this.limite);                
+            }
+            //Si siguen comiendo, que se vayan
         }
+        this.plato.release();
         mutex.release();
     }
 
@@ -140,18 +186,27 @@ public class Comedero {
         animalesComiendo--;
         System.out.println(Color.YELLOW + Thread.currentThread().getName() + " sale");
         platos.push(plato);
-        //Si xx cantidad de perros han comido y hay gatos esperando entonces no seguir liberando permisos para los perros
-        if (!(contPerros >= limite && gatosEsperando > 0)) {
-            perro.release();
-        }
-        //Desbloquear a los gatos si nadie esta comiendo
-        if (animalesComiendo == 0) {
-            gato.release(cantPlatos);
-            if (gatosEsperando > 0) {
-                contGatos = 0;
+        //Si xx cantidad de gatos ya han comido y hay perros esperando, no liberar un permiso para los otros gatos
+        if (animalesComiendo == 0 && (gatosEsperando + perrosEsperando) == 0) {
+            //pueden entrar gatos
+            gato.release(this.limite);
+            //Perro tendría todos sus permisos
+        } else if (contPerros < limite) {
+            if (perrosEsperando == 0) {
+                if (gatosEsperando > 0 && animalesComiendo == 0) {
+                    perro.acquire(limite - contPerros);
+                    //Bloquear a gatos
+                    gato.release(limite);
+                }
+            }
+        } else {
+            if (gatosEsperando > 0 && animalesComiendo == 0) {
+                gato.release(this.limite);
             }
         }
+        this.plato.release();
         mutex.release();
+
     }
 
 }

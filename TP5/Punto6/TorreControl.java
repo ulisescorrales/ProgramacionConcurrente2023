@@ -45,6 +45,7 @@ public class TorreControl {
             puedeAterrizar.acquire();
             usarPista.acquire();
             mutex.acquire();
+            esperandoYArriba++;
             System.out.println(Color.CYAN + Thread.currentThread().getName() + " está aterrizando");
             esperandoAterrizar--;
             mutex.release();

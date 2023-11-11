@@ -4,6 +4,9 @@
  */
 package programacionconcurrente2023.TP5.Punto3;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  *
@@ -23,10 +26,11 @@ public class NewMain {
 //Se prueba con inicializar y comenzar los hilos de ambas especies intercaladamente para verificar el bloqueo entre ambas especies
         for (int i = 0; i < cantAnimales; i++) {
             perros[i] = new Perro(comedero, "Perro " + (i + 1));
-            perros[i].start();
+            perros[i].start();                        
             gatos[i] = new Gato(comedero, "Gato" + (i + 1));
-            gatos[i].start();
+            gatos[i].start();        
         }
+                
 
     }
 

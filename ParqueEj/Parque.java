@@ -14,6 +14,7 @@ import programacionconcurrente2023.Color;
  * @author ulisescorrales
  */
 public class Parque {
+
     int cap;
     Semaphore capacidad;
     Semaphore vecino = new Semaphore(1);
@@ -22,8 +23,11 @@ public class Parque {
     int cont = 0;
     int esperandoVisitante = 0;
     int esperandoVecino = 0;
-    Semaphore semVecino=new Semaphore(1);
-    boolean liberadoV=true;
+    Semaphore semVecino = new Semaphore(1);
+    Semaphore semVisitantes = new Semaphore(1);
+    boolean liberadoV = true;
+    boolean bloqVecino = false;
+    int esperandoAdentro = 0;
 
     public Parque(int cap) {
         this.cap = cap;
@@ -33,66 +37,109 @@ public class Parque {
     public void entrarVisitante() {
         try {
             mutex.acquire();
+            System.out.println(Thread.currentThread().getName() + " pide entrar");
+            esperandoAdentro++;
             esperandoVisitante++;
-            System.out.println(Thread.currentThread().getName()+" intenta entrar");
-            mutex.release();      
-                        
-            visitantes.acquire();
+            if (esperandoVisitante + esperandoVecino == 1 && cont<cap) {
+                System.out.println("BLOQUEAR VECINO");
+                semVecino.acquire();
+            }
+            mutex.release();
+
+            semVisitantes.acquire();
             capacidad.acquire();
             mutex.acquire();
-            System.out.println(Color.CYAN+Thread.currentThread().getName()+" entra");
+            System.out.println(Color.GREEN + Thread.currentThread().getName() + " entra");
+            //a esta altura quedan en (0,0)
             esperandoVisitante--;
             cont++;
             if (cont < cap) {
-                //Pueden seguir entrando vecinos
-                visitantes.release();
+                if (esperandoVecino > 0) {
+                    System.out.println("    libera vecino");
+                    semVecino.release();
+                } else if (esperandoVisitante > 0) {
+                    System.out.println("    libera visitante");
+                    semVisitantes.release();
+                } else {
+                    System.out.println("    libera ambos");
+                    this.getPermisos();
+                    semVisitantes.release();
+                    semVecino.release();
+                }
             }
+
             mutex.release();
         } catch (InterruptedException ex) {
-            Logger.getLogger(Vecino.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Parque.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public void entrarVecino() {
         try {
             mutex.acquire();
+            System.out.println(Thread.currentThread().getName() + " pide entrar");
+            esperandoAdentro++;
             esperandoVecino++;
-            System.out.println(Thread.currentThread().getName()+" intenta entrar");
-            if (esperandoVecino == 1 && cont<cap  && esperandoVisitante!=1) {
-                System.out.println("intenta bloquear a visitantes");
-                visitantes.acquire();
-                System.out.println("visitanes bloqueados");
+            if (esperandoVisitante + esperandoVecino == 1 && cont<cap) {
+                System.out.println("BLOQUEAR VISITANTE");
+                semVisitantes.acquire();
             }
             mutex.release();
-            
+
+            semVecino.acquire();
             capacidad.acquire();
             mutex.acquire();
-            System.out.println(Color.GREEN+Thread.currentThread().getName()+" entra");
-            cont++;
+            System.out.println(Color.CYAN + Thread.currentThread().getName() + " entra");
             esperandoVecino--;
-            if (cont < cap && esperandoVecino == 0) {
-                System.out.println("    Libera visitantes");
-                visitantes.release();
+            cont++;
+            if (cont < cap) {
+                if (esperandoVecino > 0) {
+                    System.out.println("    libera vecino");
+                    semVecino.release();                   
+                } else if (esperandoVisitante > 0) {
+                    System.out.println("    libera visitante");
+                    semVisitantes.release();
+                } else {
+                    System.out.println("    libera ambos");
+                    this.getPermisos();
+                    semVisitantes.release();
+                    semVecino.release();
+                }
             }
             mutex.release();
         } catch (InterruptedException ex) {
-            Logger.getLogger(Vecino.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Parque.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void salir(){
+
+    public void salir() {
         try {
             mutex.acquire();
-            if(cont==cap){
-                if(esperandoVecino==0)
-                    visitantes.release();
+            esperandoAdentro--;
+            if (cont == cap) {
+                System.out.println("--");
+                if (esperandoVecino > 0) {
+                    System.out.println("    libera vecino");
+                    semVecino.release();
+                } else if (esperandoVisitante > 0) {
+                    System.out.println("    libera visitante");
+                    semVisitantes.release();
+                } else {
+                    System.out.println("    libera ambos");
+                    this.getPermisos();
+                    semVisitantes.release();
+                    semVecino.release();
+                }
             }
             cont--;
-            System.out.println(Color.YELLOW+Thread.currentThread().getName()+" sale");
+            System.out.println(Color.YELLOW + Thread.currentThread().getName() + " sale");
             capacidad.release();
             mutex.release();
         } catch (InterruptedException ex) {
             Logger.getLogger(Vecino.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    public void getPermisos(){
+        System.out.println("semVisitantes: "+(semVisitantes.availablePermits()+1)+", semVecinos: "+(semVecino.availablePermits()+1));
     }
 }

@@ -25,16 +25,16 @@ public class Rio {
         try {
             mutex.acquire();
             esperandoOveja++;
-            if(esperandoOveja+esperandoLobo==1 && lobosAdentro==0){//Como no hay límite, no es necesario incluir la capacidad
+            if(esperandoOveja+esperandoLobo==1){//Como no hay límite, no es necesario incluir la capacidad
                 System.out.println("    bloquear lobos");
                 lobo.acquire();
             }            
             mutex.release();
             
             oveja.acquire();
+            //
             mutex.acquire();
-            System.out.println("Entra oveja");
-            esperandoOveja--;
+            System.out.println("Entra oveja");            
             if(esperandoLobo==0){
                 System.out.println("    libera oveja");
                 oveja.release();
@@ -58,8 +58,7 @@ public class Rio {
             
             lobo.acquire();
             mutex.acquire();
-            lobo.release();//irrestricto;
-            esperandoLobo--;
+            lobo.release();//irrestricto;            
             lobosAdentro++;
             System.out.println("Entra lobo");
             mutex.release();
@@ -72,7 +71,8 @@ public class Rio {
             mutex.acquire();
             System.out.println("Sale lobo");
             lobosAdentro--;
-            if(lobosAdentro==0){
+            esperandoLobo--;
+            if(esperandoLobo==0){
                 oveja.release();
             }
             mutex.release();
@@ -85,7 +85,8 @@ public class Rio {
             mutex.acquire();
             System.out.println("Sale Oveja");
             ovejasAdentro--;
-            if(ovejasAdentro==0){
+            esperandoOveja--;
+            if(esperandoOveja==0){
                 lobo.release();
             }            
             mutex.release();

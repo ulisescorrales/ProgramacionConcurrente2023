@@ -52,9 +52,10 @@ public class Comedero {
         System.out.println(Thread.currentThread().getName() + " intenta entrar");
         gatosEsperando++;
         //El primer animal que llega cuando nadie esta comiendo es quien bloquea a la otra especie
-        if (gatosEsperando == 1 && (perrosEsperando + animalesComiendo == 0)) {
+    if (gatosEsperando == 1 && (perrosEsperando + animalesComiendo == 0)) {//EsperandoAdentro==1
             //Bloquear a todos los perros
             System.out.println(Color.RED + "Perros se bloquean");
+            //Bloquear de acuerdo al límite
             if (contPerros >= limite) {
                 //Aqui solo tendría un permiso
                 System.out.println("Se bloquea un solo permiso");

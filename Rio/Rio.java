@@ -49,7 +49,7 @@ public class Rio {
         try {
             mutex.acquire();
             esperandoLobo++;
-            if(esperandoOveja+esperandoLobo==1){//Como no hay límite, no es necesario incluir la capacidad
+            if(esperandoLobo==1){//Como no hay límite, no es necesario incluir la capacidad
                 System.out.println("    bloquear ovejas");
                 oveja.acquire();
             }
@@ -72,8 +72,15 @@ public class Rio {
             System.out.println("Sale lobo");
             lobosAdentro--;
             esperandoLobo--;
-            if(esperandoLobo==0){
-                oveja.release();
+            if(lobosAdentro==0){
+                if(esperandoOveja>0){
+                    oveja.release();
+                }else if(esperandoLobo>0){
+                    lobo.release();
+                }else{
+                    lobo.release();
+                    oveja.release();
+                }
             }
             mutex.release();
         } catch (InterruptedException ex) {
@@ -86,9 +93,16 @@ public class Rio {
             System.out.println("Sale Oveja");
             ovejasAdentro--;
             esperandoOveja--;
-            if(esperandoOveja==0){
-                lobo.release();
-            }            
+            if(ovejasAdentro==0){
+                if(esperandoLobo>0){
+                    lobo.release();
+                }else if(esperandoOveja>0){
+                    oveja.release();
+                }else{
+                    lobo.release();
+                    oveja.release();
+                }
+            }
             mutex.release();
         } catch (InterruptedException ex) {
             Logger.getLogger(Rio.class.getName()).log(Level.SEVERE, null, ex);

@@ -65,13 +65,17 @@ public class Libro {
         }
     }
     public void dejarEscribir(){
-        //Ya terminó de escribir
-        escritores.release();
-        mutex2.acquire();
-        cantEscritores--;
-        if(cantEscritores==0){
-            leer.release(cantLectores);
+        try {
+            //Ya terminó de escribir
+            escritores.release();
+            mutex2.acquire();
+            cantEscritores--;
+            if(cantEscritores==0){
+                leer.release(cantLectores);
+            }
+            mutex2.release();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Libro.class.getName()).log(Level.SEVERE, null, ex);
         }
-        mutex2.release();
     }
 }

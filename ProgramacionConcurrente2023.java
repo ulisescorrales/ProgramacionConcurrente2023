@@ -16,7 +16,7 @@ public class ProgramacionConcurrente2023 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        System.out.println(Color.BLUE+"Hola");
+        System.out.println(System.getenv("LANG"));
     }
     
 }

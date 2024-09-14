@@ -28,7 +28,7 @@ public class NewMain {
         Sumador[] sumadores=new Sumador[cantSumadores];
                 
         for (i = 0; i < longitud; i++) {
-            arreglo[i]=num.nextInt(1,11);
+            arreglo[i]=num.nextInt(10)+1;
         }
         Arreglo arr=new Arreglo(arreglo);
         

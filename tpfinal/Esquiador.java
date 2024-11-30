@@ -33,6 +33,7 @@ public class Esquiador extends Thread{
                     //esquiar
                     break;
                 case 1:
+                    tomarClase();
                     //tomar clases de esquí
                     break;
                 case 2:
@@ -57,5 +58,12 @@ public class Esquiador extends Thread{
             Logger.getLogger(Esquiador.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+    }
+    private void tomarClase(){
+        boolean pudoComenzar;
+        pudoComenzar=this.cabina.entrarClase();
+        if(pudoComenzar){
+            
+        }
     }
 }
